@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+
+<argos-configuration>
+
+    <!-- ************************* -->
+    <!-- * General configuration * -->
+    <!-- ************************* -->
+    <framework>
+        <system threads="0"/>
+        <experiment length="300" ticks_per_second="10" random_seed="10"/>
+    </framework>
+
+    <!-- *************** -->
+    <!-- * Controllers * -->
+    <!-- *************** -->
+    <controllers>
+
+        <basic_controller id="bc" library="build/controllers/libbasic_controller.so">
+            <actuators>
+                <differential_steering implementation="default"/>
+                <leds implementation="default" medium="leds"/>
+            </actuators>
+            <sensors>
+                <footbot_proximity implementation="default" show_rays="false"/>
+                <footbot_light implementation="rot_z_only" show_rays="false"/>
+                <ground implementation="rot_z_only"/>
+            </sensors>
+            <params>
+                <diffusion go_straight_angle_range="-5:5"
+                           delta="0.1"/>
+                <wheel_turning hard_turn_angle_threshold="90"
+                               soft_turn_angle_threshold="70"
+                               no_turn_angle_threshold="10"
+                               max_speed="20"/>
+            </params>
+        </basic_controller>
+
+    </controllers>
+
+    <loop_functions library="./build/loop_functions/libbasic_loop_functions.so" label="basic_loop_functions">
+        <harvesting items="20"
+                    min_x="-0.8"
+                    max_x="0.8"
+                    min_y="0.6"
+                    max_y="2.05"
+                    radius="0.1"
+                    output="harvesting.txt"/>
+        <cache maxFoodCache="10"/>
+        <algorithm algorithm="algo2" num_harvesters="1" num_storers="3"/>
+    </loop_functions>
+
+    <!-- *********************** -->
+    <!-- * Arena configuration * -->
+    <!-- *********************** -->
+    <arena size="4, 6.5, 1" center="0,0,0.5">
+
+        <floor id="floor" source="loop_functions" pixels_per_meter="50"/>
+
+        <box id="wall_north" size="0.1,4.5,0.5" movable="false">
+            <body position="1,0,0" orientation="0,0,0"/>
+        </box>
+        <box id="wall_south" size="0.1,4.5,0.5" movable="false">
+            <body position="-1,0,0" orientation="0,0,0"/>
+        </box>
+        <box id="wall_east" size="2,0.1,0.5" movable="false">
+            <body position="0,2.25,0" orientation="0,0,0"/>
+        </box>
+        <box id="wall_west" size="2,0.1,0.5" movable="false">
+            <body position="0,-2.25,0" orientation="0,0,0"/>
+        </box>
+
+        <light id="light_1" position="0,-2.25,0.9" orientation="0,0,0" color="yellow" intensity="3.0" medium="leds"/>
+
+        <distribute>
+            <position method="uniform" min="-1, -1.65, 0" max="1, 0,0"/>
+            <orientation method="constant" values="90,0,0"/>
+            <entity quantity="4" max_trials="10000">
+                <foot-bot id="fb">
+                    <controller config="bc"/>
+                </foot-bot>
+            </entity>
+        </distribute>
+
+    </arena>
+
+    <!-- ******************* -->
+    <!-- * Physics engines * -->
+    <!-- ******************* -->
+    <physics_engines>
+        <dynamics2d id="dyn2d"/>
+    </physics_engines>
+
+    <!-- ********* -->
+    <!-- * Media * -->
+    <!-- ********* -->
+    <media>
+        <range_and_bearing id="rab"/>
+        <led id="leds"/>
+    </media>
+    <!-- ****************** -->
+    <!-- * Visualization * -->
+    <!-- ****************** -->
+    <visualization>
+        <qt-opengl>
+            <camera>
+                <placements>
+                    <placement index="0" position="0,0,13" look_at="0,0,0" up="1,0,0" lens_focal_length="65"/>
+                </placements>
+            </camera>
+            <user_functions label="basic_qtuser_functions"/>
+        </qt-opengl>
+    </visualization>
+
+</argos-configuration>
